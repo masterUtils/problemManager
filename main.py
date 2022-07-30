@@ -29,12 +29,12 @@ async def github():
     return Response(status_code=302, headers={"Location": "https://github.com/masterUtils/problemManager"})
 
 
-@app.get("/failed/{problem_id}")
-async def failed(problem_id: str):
+@app.get("/fail/{problem_id}")
+async def fail(problem_id: str):
     if problem_id not in db:
         db[problem_id] = Problem(0, 0)
     problem = db[problem_id]
-    problem.failed += 1
+    problem.fail += 1
     db[problem_id] = problem.to_json()
     return HTMLResponse(f"<h1>{problem_id}</h1>")
 
@@ -58,7 +58,7 @@ async def stats(problem_id: str):
     color = 'red'
     if problem.success > 0:
         color = 'green'
-    b = badge(left_text="Problem", right_text=f"{problem.success} - {problem.failed}", right_color=color)
+    b = badge(left_text="Problem", right_text=f"{problem.success} - {problem.fail}", right_color=color)
 
     svg_file = BytesIO(b.encode())
     png_file = BytesIO()
