@@ -35,7 +35,7 @@ async def fail(problem_id: str):
         db[problem_id] = Problem(0, 0)
     problem = db[problem_id]
     problem.fail += 1
-    db[problem_id] = problem.to_json()
+    db[problem_id] = problem
     return HTMLResponse(f"<h1>{problem_id}</h1>")
 
 
