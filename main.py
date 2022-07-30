@@ -1,3 +1,4 @@
+import logging
 from io import BytesIO
 
 import uvicorn
@@ -69,10 +70,12 @@ async def stats(problem_id: str):
     drawing.width *= scale
     drawing.height *= scale
 
-    renderPM.drawToFile(drawing, png_file, fmt="PNG", )
+    renderPM.drawToFile(drawing, png_file, fmt="PNG")
     img = png_file.getvalue()
     return Response(img, media_type="image/png")
 
 
 if __name__ == '__main__':
+    logger = logging.getLogger('svglib')
+    logger.setLevel(logging.ERROR)
     uvicorn.run(app, host='0.0.0.0', port=8000, debug=True)
