@@ -7,7 +7,7 @@ from starlette.responses import Response, HTMLResponse
 from starlette.middleware.cors import CORSMiddleware
 from sqlitedict import SqliteDict
 from pybadges import badge
-from reportlab.graphics import renderPDF, renderPM
+from reportlab.graphics import renderPM
 from svglib.svglib import svg2rlg
 
 from entity import Problem
