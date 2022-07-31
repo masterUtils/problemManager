@@ -22,7 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-db = SqliteDict("db.sqlite", autocommit=True)
+db = SqliteDict("data/db.sqlite", autocommit=True)
 
 
 @app.get("/")
