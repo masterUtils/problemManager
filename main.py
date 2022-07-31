@@ -2,7 +2,7 @@ import logging
 from io import BytesIO
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from starlette.responses import Response, HTMLResponse
 from starlette.middleware.cors import CORSMiddleware
 from sqlitedict import SqliteDict
@@ -33,39 +33,35 @@ async def github():
 @app.get("/fail/{problem_id}")
 async def fail(problem_id: str):
     if problem_id not in db:
-        db[problem_id] = Problem(0, 0)
-    problem = db[problem_id]
-    problem.fail += 1
-    db[problem_id] = problem
+        return HTMLResponse(f"<h1>{problem_id} not found</h1>")
+    db[problem_id].fail += 1
     return HTMLResponse(f"<h1>{problem_id}</h1>")
 
 
 @app.get("/success/{problem_id}")
 async def success(problem_id: str):
     if problem_id not in db:
-        db[problem_id] = Problem(0, 0)
-    problem = db[problem_id]
-    problem.success += 1
-    db[problem_id] = problem
+        return HTMLResponse(f"<h1>{problem_id} not found</h1>")
+    db[problem_id].success += 1
     return HTMLResponse(f"<h1>{problem_id}</h1>")
 
 
 @app.get("/stats/{problem_id}")
-async def stats(problem_id: str):
+async def stats(problem_id: str, name: str = Query(default="Problem")):
     if problem_id not in db:
-        db[problem_id] = Problem(0, 0)
+        db[problem_id] = Problem(0, 0, name)
     problem = db[problem_id]
 
     color = 'red'
     if problem.success > 0:
         color = 'green'
-    b = badge(left_text="Problem", right_text=f"{problem.success} - {problem.fail}", right_color=color)
+    b = badge(left_text=problem.name, right_text=f"{problem.success} - {problem.fail}", right_color=color)
 
     svg_file = BytesIO(b.encode())
     png_file = BytesIO()
     drawing = svg2rlg(svg_file)
 
-    scale = 5
+    scale = 2
     drawing.scale(scale, scale)
     drawing.width *= scale
     drawing.height *= scale
@@ -76,6 +72,5 @@ async def stats(problem_id: str):
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger('svglib')
-    logger.setLevel(logging.ERROR)
-    uvicorn.run(app, host='0.0.0.0', port=8000, debug=True)
+    logging.getLogger('svglib').setLevel(logging.ERROR)
+    uvicorn.run(app, host='0.0.0.0', port=8000)
