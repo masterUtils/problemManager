@@ -51,6 +51,15 @@ async def success(problem_id: str):
     return HTMLResponse(f"<h1>{problem_id}</h1>")
 
 
+@app.get("/reset/{problem_id}")
+async def reset(problem_id: str):
+    if problem_id not in db:
+        return HTMLResponse(f"<h1>{problem_id} not found</h1>", status_code=404)
+    db[problem_id].success = 0
+    db[problem_id].fail = 0
+    return HTMLResponse(f"<h1>{problem_id}</h1>")
+
+
 @app.get("/stats/{problem_id}")
 async def stats(problem_id: str):
     if problem_id not in db:
