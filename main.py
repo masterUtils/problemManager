@@ -25,6 +25,11 @@ app.add_middleware(
 db = SqliteDict("data/db.sqlite", autocommit=True)
 
 
+@app.on_event("startup")
+async def startup_event():
+    logging.getLogger('svglib').setLevel(logging.ERROR)
+
+
 @app.get("/")
 async def github():
     return Response(status_code=302, headers={"Location": "https://github.com/masterUtils/problemManager"})
@@ -33,7 +38,7 @@ async def github():
 @app.get("/fail/{problem_id}")
 async def fail(problem_id: str):
     if problem_id not in db:
-        return HTMLResponse(f"<h1>{problem_id} not found</h1>")
+        return HTMLResponse(f"<h1>{problem_id} not found</h1>", status_code=404)
     db[problem_id].fail += 1
     return HTMLResponse(f"<h1>{problem_id}</h1>")
 
@@ -41,15 +46,15 @@ async def fail(problem_id: str):
 @app.get("/success/{problem_id}")
 async def success(problem_id: str):
     if problem_id not in db:
-        return HTMLResponse(f"<h1>{problem_id} not found</h1>")
+        return HTMLResponse(f"<h1>{problem_id} not found</h1>", status_code=404)
     db[problem_id].success += 1
     return HTMLResponse(f"<h1>{problem_id}</h1>")
 
 
 @app.get("/stats/{problem_id}")
-async def stats(problem_id: str, name: str = Query(default="Problem")):
+async def stats(problem_id: str):
     if problem_id not in db:
-        db[problem_id] = Problem(0, 0, name)
+        return HTMLResponse(f"<h1>{problem_id} not found</h1>", status_code=404)
     problem = db[problem_id]
 
     color = 'red'
@@ -71,6 +76,14 @@ async def stats(problem_id: str, name: str = Query(default="Problem")):
     return Response(img, media_type="image/png")
 
 
+@app.post("/create/{problem_id}")
+async def create(problem_id: str, name: str = Query(default="Problem")):
+    if problem_id not in db:
+        db[problem_id] = Problem(0, 0, name)
+    else:
+        db[problem_id].name = name
+    return {"message": "ok"}
+
+
 if __name__ == '__main__':
-    logging.getLogger('svglib').setLevel(logging.ERROR)
     uvicorn.run(app, host='0.0.0.0', port=8000)
