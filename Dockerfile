@@ -1,9 +1,10 @@
 FROM python:alpine
 
 EXPOSE 8000
-VOLUME ["/data"]
 
 WORKDIR /app
+VOLUME ["/app/data"]
+
 COPY . .
 
 RUN apk update

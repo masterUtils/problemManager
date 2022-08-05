@@ -73,6 +73,7 @@ async def stats(problem_id: str):
 
     renderPM.drawToFile(drawing, png_file, fmt="PNG")
     img = png_file.getvalue()
+    del png_file
     return Response(img, media_type="image/png")
 
 
