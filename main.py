@@ -39,7 +39,9 @@ async def github():
 async def fail(problem_id: str):
     if problem_id not in db:
         return HTMLResponse(f"<h1>{problem_id} not found</h1>", status_code=404)
-    db[problem_id].fail += 1
+    problem = db[problem_id]
+    problem.fail += 1
+    db[problem_id] = problem
     return HTMLResponse(f"<h1>{problem_id}</h1>")
 
 
@@ -47,7 +49,9 @@ async def fail(problem_id: str):
 async def success(problem_id: str):
     if problem_id not in db:
         return HTMLResponse(f"<h1>{problem_id} not found</h1>", status_code=404)
-    db[problem_id].success += 1
+    problem = db[problem_id]
+    problem.success += 1
+    db[problem_id] = problem
     return HTMLResponse(f"<h1>{problem_id}</h1>")
 
 
@@ -55,8 +59,10 @@ async def success(problem_id: str):
 async def reset(problem_id: str):
     if problem_id not in db:
         return HTMLResponse(f"<h1>{problem_id} not found</h1>", status_code=404)
-    db[problem_id].success = 0
-    db[problem_id].fail = 0
+    problem = db[problem_id]
+    problem.success = 0
+    problem.fail = 0
+    db[problem_id] = problem
     return HTMLResponse(f"<h1>{problem_id}</h1>")
 
 
