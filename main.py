@@ -81,11 +81,6 @@ async def stats(problem_id: str):
     png_file = BytesIO()
     drawing = svg2rlg(svg_file)
 
-    scale = 2
-    drawing.scale(scale, scale)
-    drawing.width *= scale
-    drawing.height *= scale
-
     renderPM.drawToFile(drawing, png_file, fmt="PNG")
     img = png_file.getvalue()
     del png_file
