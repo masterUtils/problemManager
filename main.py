@@ -66,7 +66,26 @@ async def reset(problem_id: str):
     return HTMLResponse(f"<h1>{problem_id}</h1>")
 
 
-@app.get("/stats/{problem_id}")
+@app.get("/stats/_/{section_id}.json")
+async def stats(section_id: str):
+    keys = db.keys()
+    keys = [k for k in keys if k.startswith(section_id)]
+    ret = {}
+    for k in keys:
+        ret[k] = db[k]
+    return ret
+
+
+@app.get("/stats/{problem_id}.txt")
+async def stats(problem_id: str):
+    if problem_id not in db:
+        return HTMLResponse(f"<h1>{problem_id} not found</h1>", status_code=404)
+    problem = db[problem_id]
+
+    return Response(f"{problem.success} / {problem.success + problem.fail}", media_type="text/plain")
+
+
+@app.get("/stats/{problem_id}.png")
 async def stats(problem_id: str):
     if problem_id not in db:
         return HTMLResponse(f"<h1>{problem_id} not found</h1>", status_code=404)
@@ -88,11 +107,15 @@ async def stats(problem_id: str):
 
 
 @app.post("/create/{problem_id}")
-async def create(problem_id: str, name: str = Query(default="Problem")):
+async def create(problem_id: str, name: str = Query(default="Problem"), onenote_url: str = Query(...)):
     if problem_id not in db:
-        db[problem_id] = Problem(0, 0, name)
+        db[problem_id] = Problem(0, 0, onenote_url, name)
     else:
-        db[problem_id].name = name
+        problem = db[problem_id]
+        if name != "Problem":
+            problem.name = name
+        problem.onenote_url = onenote_url
+        db[problem_id] = problem
     return {"message": "ok"}
 
 
