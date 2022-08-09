@@ -42,7 +42,7 @@ async def fail(problem_id: str):
     problem = db[problem_id]
     problem.fail += 1
     db[problem_id] = problem
-    return HTMLResponse(f"<h1>{problem_id}</h1>")
+    return problem
 
 
 @app.get("/success/{problem_id}")
@@ -52,7 +52,7 @@ async def success(problem_id: str):
     problem = db[problem_id]
     problem.success += 1
     db[problem_id] = problem
-    return HTMLResponse(f"<h1>{problem_id}</h1>")
+    return problem
 
 
 @app.get("/reset/{problem_id}")
@@ -63,11 +63,11 @@ async def reset(problem_id: str):
     problem.success = 0
     problem.fail = 0
     db[problem_id] = problem
-    return HTMLResponse(f"<h1>{problem_id}</h1>")
+    return problem
 
 
 @app.get("/stats/_/{section_id}.json")
-async def stats(section_id: str):
+async def stats_all(section_id: str):
     keys = db.keys()
     keys = [k for k in keys if k.startswith(section_id)]
     ret = {}
@@ -76,8 +76,15 @@ async def stats(section_id: str):
     return ret
 
 
+@app.get("/stats/{problem_id}.json")
+async def stats_json(problem_id: str):
+    if problem_id not in db:
+        return HTMLResponse(f"<h1>{problem_id} not found</h1>", status_code=404)
+    return db[problem_id]
+
+
 @app.get("/stats/{problem_id}.txt")
-async def stats(problem_id: str):
+async def stats_txt(problem_id: str):
     if problem_id not in db:
         return HTMLResponse(f"<h1>{problem_id} not found</h1>", status_code=404)
     problem = db[problem_id]
@@ -86,7 +93,7 @@ async def stats(problem_id: str):
 
 
 @app.get("/stats/{problem_id}.png")
-async def stats(problem_id: str):
+async def stats_png(problem_id: str):
     if problem_id not in db:
         return HTMLResponse(f"<h1>{problem_id} not found</h1>", status_code=404)
     problem = db[problem_id]
